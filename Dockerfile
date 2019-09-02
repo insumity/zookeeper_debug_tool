@@ -1,12 +1,9 @@
 FROM ubuntu:19.04
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y git ant vim maven inetutils-ping telnet openjdk-11-jdk iptables 
+RUN mkdir -p /tmp/zookeeper
 
-RUN mkdir -p /tmp/zookeeper2
-
-ADD zookeeper2 /tmp/zookeeper2
-#RUN (cd /tmp/zookeeper2; ant eclipse -Dmaven.test.skip=true) 
-
+ADD zookeeper /tmp/zookeeper
 
 # the following ports are exposed but not necessarily used afterwards 
 # expose debug mode port

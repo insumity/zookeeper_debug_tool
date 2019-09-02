@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# get zookeeper2 only if not here
+# get zookeeper only if not here
 if [ ! -d "zookeeper" ]
 then
     git clone https://github.com/apache/zookeeper.git
@@ -53,10 +53,10 @@ do
             -p $serverPortA:$serverPortA -p $serverPortB:$serverPortB -it zookeeper_server /bin/bash
     fi
 
-    docker cp configuration_files/server$i.cfg server$i:/tmp/zookeeper2/conf
-    docker cp zkDebugServer.sh server$i:/tmp/zookeeper2/bin
-    docker exec server$i mkdir /tmp/zookeeper2/server$i /tmp/zookeeper2/server$i/data
-    docker exec server$i bash -c "echo $i > /tmp/zookeeper2/server$i/data/myid"
+    docker cp configuration_files/server$i.cfg server$i:/tmp/zookeeper/conf
+    docker cp zkDebugServer.sh server$i:/tmp/zookeeper/bin
+    docker exec server$i mkdir /tmp/zookeeper/server$i /tmp/zookeeper/server$i/data
+    docker exec server$i bash -c "echo $i > /tmp/zookeeper/server$i/data/myid"
 
 done
 
@@ -73,14 +73,14 @@ do
 
     if [ $i -eq $DEBUG_SERVER ]
     then    
-        tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper2/bin/zkDebugServer.sh start-foreground /tmp/zookeeper2/conf/server$i.cfg" C-m
+        tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper/bin/zkDebugServer.sh start-foreground /tmp/zookeeper/conf/server$i.cfg" C-m
     else
-        tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper2/bin/zkServer.sh start-foreground /tmp/zookeeper2/conf/server$i.cfg" C-m
+        tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper/bin/zkServer.sh start-foreground /tmp/zookeeper/conf/server$i.cfg" C-m
     fi
 done
 
 # start the client that is connected in server2
-tmux send-keys -t "zookeeper_session":"client" "./zookeeper2/bin/zkCli.sh -server 127.0.0.1:2792" C-m
+tmux send-keys -t "zookeeper_session":"client" "./zookeeper/bin/zkCli.sh -server 127.0.0.1:2792" C-m
 tmux send-keys -t "zookeeper_session":"client" "addauth digest super:super123" C-m
 
 tmux attach -t "zookeeper_session"
