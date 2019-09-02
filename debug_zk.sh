@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # get zookeeper2 only if not here
-if [ ! -d "zookeeper2" ]
+if [ ! -d "zookeeper" ]
 then
     git clone https://github.com/apache/zookeeper.git
-    mv zookeeper zookeeper2
 fi
 
-(cd zookeeper2; ant compile; ant eclipse -Dmaven.test.skip=true)
+(cd zookeeper; ant compile; ant eclipse -Dmaven.test.skip=true)
 
 
 docker rmi -f zookeeper_server
