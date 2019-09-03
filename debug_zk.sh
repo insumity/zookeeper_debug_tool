@@ -12,6 +12,11 @@ fi
 docker rmi -f zookeeper_server
 docker build -t zookeeper_server -f Dockerfile . 
 
+DEBUG=false
+if [[ $1 = true ]];
+then
+    DEBUG=true
+fi
 
 DEBUG_PORT=5005
 DEBUG_SERVER=1
@@ -44,10 +49,16 @@ do
     serverPortA=$((1111*$(($i + 1))))
     serverPortB=$(($serverPortA+1))
 
-    if [ $i -eq $DEBUG_SERVER ]
+    if $DEBUG;
     then
-        docker run --privileged -d --net=zookeeper_network --name server$i -p $clientPort:$clientPort \
-            -p $serverPortA:$serverPortA -p $serverPortB:$serverPortB -p $DEBUG_PORT:$DEBUG_PORT -it zookeeper_server /bin/bash
+        if [[ $i -eq $DEBUG_SERVER ]];
+        then
+            docker run --privileged -d --net=zookeeper_network --name server$i -p $clientPort:$clientPort \
+                -p $serverPortA:$serverPortA -p $serverPortB:$serverPortB -p $DEBUG_PORT:$DEBUG_PORT -it zookeeper_server /bin/bash
+        else
+            docker run --privileged -d --net=zookeeper_network --name server$i -p $clientPort:$clientPort \
+                -p $serverPortA:$serverPortA -p $serverPortB:$serverPortB -it zookeeper_server /bin/bash
+        fi
     else
         docker run --privileged -d --net=zookeeper_network --name server$i -p $clientPort:$clientPort \
             -p $serverPortA:$serverPortA -p $serverPortB:$serverPortB -it zookeeper_server /bin/bash
@@ -70,10 +81,14 @@ do
     # set SERVER_JVMFLAGS in order to be able to perform reconfigs (from here: https://community.hortonworks.com/articles/29900/zookeeper-using-superdigest-to-gain-full-access-to.html)
     tmux send-keys -t "zookeeper_session":"server$i" "export SERVER_JVMFLAGS=-Dzookeeper.DigestAuthenticationProvider.superDigest=super:UdxDQl4f9v5oITwcAsO9bmWgHSI=" C-m
 
-
-    if [ $i -eq $DEBUG_SERVER ]
-    then    
-        tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper/bin/zkDebugServer.sh start-foreground /tmp/zookeeper/conf/server$i.cfg" C-m
+    if $DEBUG;
+    then
+        if [ $i -eq $DEBUG_SERVER ]
+        then    
+            tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper/bin/zkDebugServer.sh start-foreground /tmp/zookeeper/conf/server$i.cfg" C-m
+        else
+            tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper/bin/zkServer.sh start-foreground /tmp/zookeeper/conf/server$i.cfg" C-m
+        fi
     else
         tmux send-keys -t "zookeeper_session":"server$i" "/tmp/zookeeper/bin/zkServer.sh start-foreground /tmp/zookeeper/conf/server$i.cfg" C-m
     fi
