@@ -18,7 +18,12 @@ The script then build ZooKeeper and creates a tmux sessions that includes a wind
 
 The first tmux window contains a client connected to the cluster and can be used to issue commands against the cluster.
 
-Note that the ZooKeeper server in the second tmux window is not running: 
+## Running in debug mode
+If you want to run the script in debug mode, simply execute:
+
+```./debug_zk.sh true```
+
+Notice that in this case, the ZooKeeper server in the second tmux window is not running: 
 
 ![](../media/images/zk_debug_2.png) 
 
@@ -29,23 +34,23 @@ This is because it waits to be connected to IntelliJ for remote debugging. For t
 When you start remote debugging from IntelliJ, the first server starts.
 ![](../media/images/zk_debug_run.png)
 
-## Stopping a debugging session.
+## Stopping a debugging session
 Just kill the tmux session by executing:
 
 ```tmux kill-session -t zookeeper_session```
 
-## Performing code changes.
+## Performing code changes
 If you would like to see how ZooKeeper behaves after some code changes, then:
 - stop your debugging session
 - perform the code changes
 - execute `./debug_zk.sh` 
 and you can start debugging the modified codebase.
 
-## Changing the type of the ZooKeeper servers.
+## Changing the type of the ZooKeeper servers
 The current script creates 3 participant and 2 observer servers. If you want to change this, you have to change the [configuration file](configuration_files/template.cfg).
 
 
-## Connecting to ZooKeeper servers.
+## Connecting to ZooKeeper servers
 You can easily connect to any ZooKeeper server from local machine by doing:
 
 ``` ./zookeeper/bin/zkCli.sh -server 127.0.0.1:2791``` (for connecting to the first server)
@@ -56,5 +61,5 @@ or even
 
 and then issuing some [4wl command](https://zookeeper.apache.org/doc/r3.4.8/zookeeperAdmin.html#sc_zkCommands).
 
-## Creating a network partition. 
+## Creating a network partition
 If you would like to see how ZooKeeper performs under a network partition, you can simply use `iptables` and perform similar commands as the ones shown in [`create_np.sh`](create_np.sh) or [`heal_np.sh`](heal_np.sh) to heal a network partition.
